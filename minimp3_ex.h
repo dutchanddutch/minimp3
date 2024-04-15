@@ -451,6 +451,8 @@ int mp3dec_load_cb(mp3dec_t *dec, mp3dec_io_t *io, uint8_t *buf, size_t buf_size
         }
         if (samples)
         {
+            if(!info->hz) { info->hz = frame_info.hz; }
+            if(!info->layer) { info->layer = frame_info.layer; }
             if (info->hz != frame_info.hz || info->layer != frame_info.layer)
             {
                 ret = MP3D_E_DECODE;
@@ -904,6 +906,8 @@ size_t mp3dec_ex_read_frame(mp3dec_ex_t *dec, mp3d_sample_t **buf, mp3dec_frame_
             dec->buffer_samples = mp3dec_decode_frame(&dec->mp3d, dec_buf, MINIMP3_MIN(buf_size, (uint64_t)INT_MAX), dec->buffer, frame_info);
         }
         dec->buffer_consumed = 0;
+        if(!dec->info.hz) { dec->info.hz = frame_info->hz; }
+        if(!dec->info.layer) { dec->info.layer = frame_info->layer; }
         if (dec->info.hz != frame_info->hz || dec->info.layer != frame_info->layer)
         {
 return_e_decode:
@@ -919,6 +923,7 @@ return_e_decode:
                 dec->buffer_consumed += skip;
                 dec->to_skip -= skip;
             }
+            if(!dec->info.channels) { dec->info.channels = frame_info->channels; }
             if (
 #ifdef MINIMP3_ALLOW_MONO_STEREO_TRANSITION
                 !(dec->flags & MP3D_ALLOW_MONO_STEREO_TRANSITION) &&
